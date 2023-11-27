@@ -19,8 +19,7 @@
 ### 프로젝트 목적 및 진행방향
 이 프로젝트는 중앙대학교 예술공학대학의 오픈소스프로그래밍 수업 중, GitHub를 사용하여 프로젝트를 진행하는 방법을 경험하고, 팀원과 협력하여 개발하는 것을 주된 목적으로 한다. GitHub의 다양한 기능을 이용해서 버전을 관리하고 각자의 로컬 환경에서 동시에 작업할 수 있다는 점을 이용한다.
 
-이 프로젝트에서 우리는 앞서 말한 "수박게임"을 구현하고자 한다. 기존 JavaScript의 코드를 Python으로 완성도 있게 옮겨오는 것을 목표로 하고, 이를 기반으로 추가 기능을 구현하는 것으로 계획했다. 수박게임은 랜덤하게 내려오는 객체를 전략적으로 배치하여 제한 높이를 넘기지 않으면서 높은 점수를 기록해야하는 게임이다. 때문에 테트리스와 유사한 부분이 많다. 테트리스는 오래된 역사의 게임인 만큼 그 바리에이션의 폭이 넓다. 그 넓은 바리에이션의 일부를 구현하여 수박게임을 더욱 풍성하게 만들 수 있을 것으로 생각된다.
-
+이 프로젝트에서 우리는 앞서 말한 "수박게임"을 구현하고자 한다. 기존 JavaScript의 코드를 Python으로 완성도 있게 옮겨오는 것을 목표로 하고, 이를 기반으로 추가 기능을 구현하는 것으로 계획했다. 수박게임은 랜덤하게 내려오는 객체를 전략적으로 배치하여 제한 높이를 넘기지 않으면서 높은 점수를 기록해야하는 게임이다. 때문에 테트리스와 유사한 부분이 많다. 테트리스는 오래된 역사의 게임인 만큼 그 바리에이션의 폭이 넓다. 그 넓은 바리에이션의 일부를 구현하여 수박게임을 더욱 풍성하게 만들 수 있을 것으로 생각된다.  
 
 
  
@@ -30,10 +29,9 @@
 (설치 방법 내용)
 
 
-(플레이 방법 내용)
- 
- 
- 
+(플레이 방법 내용)  
+
+  
  
 ## 구현 기능
  
@@ -52,12 +50,12 @@
 - 이번에 떨어질 객체를 hold해 두었다가 나중에 사용하는 기능
 - 객체가 튕기는 반발 값을 플레이어가 설정하는 난이도 조절 기능
  
- 
+<p align="center"><img src="./image02.png"></p> 
  
  
 ## 참고링크
-- [Aladdin X - 수박게임](https://www.aladdinx.jp/pages/suika-game, "Aladdin X - suika game")
-- [Nintendo - 수박게임 소개](https://www.nintendo.co.kr/news/article/1LhrKTUldgxqGObCoCWoZP, "Nintendo. 과일을 성장시켜 수박으로 만들자. 『수박게임』을 아시나요?.")
-- [Wikipedia - Suika Game](https://en.wikipedia.org/wiki/Suika_Game, "위키피디아 - 수박게임")
-- [liyupi - daxigua (원본 오픈소스)](https://github.com/liyupi/daxigua, "github - liyupi - daxigua")
-- [seigot - tetris](https://github.com/seigot/tetris, "github - seigot - tetris")
+- [Aladdin X - 수박게임](https://www.aladdinx.jp/pages/suika-game "Aladdin X - suika game")
+- [Nintendo - 수박게임 소개](https://www.nintendo.co.kr/news/article/1LhrKTUldgxqGObCoCWoZP "Nintendo. 과일을 성장시켜 수박으로 만들자. 『수박게임』을 아시나요?.")
+- [Wikipedia - Suika Game](https://en.wikipedia.org/wiki/Suika_Game "위키피디아 - 수박게임")
+- [liyupi - daxigua (원본 오픈소스)](https://github.com/liyupi/daxigua "github - liyupi - daxigua")
+- [seigot - tetris](https://github.com/seigot/tetris "github - seigot - tetris")
