@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34202.233
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Watermelon Game", "Watermelon Game.pyproj", "{EF389B2C-51B2-4D0E-8E2B-9ACC996BE492}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EF389B2C-51B2-4D0E-8E2B-9ACC996BE492}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF389B2C-51B2-4D0E-8E2B-9ACC996BE492}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E8C479EA-ADC8-4BB8-9E06-CE700174134F}
+	EndGlobalSection
+EndGlobal
