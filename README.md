@@ -4,7 +4,7 @@
 
 
 ### Suika Game이란?
-<p align="center"><img src="./image01.png"></p>
+<p align="center"><img src="./ReadME/image01.png"></p>
 
 
 2023년 9월, 인터넷 방송인들 사이에서 일명 “수박게임”이라고 불리는 “Suika Game”이 유행했다. 방송과 영상의 주된 컨텐츠가 게임인 인터넷 방송인들은 물론이고, 다른 컨텐츠를 다루는 인터넷 방송인도 단기적인 컨텐츠로 Suika Game을 소비했다. 2,500원이라는 저렴한 가격과 낮은 진입장벽 덕에 역주행에 성공한 듯하다.
@@ -50,7 +50,7 @@
 - 이번에 떨어질 객체를 hold해 두었다가 나중에 사용하는 기능
 - 객체가 튕기는 반발 값을 플레이어가 설정하는 난이도 조절 기능
  
-<p align="center"><img src="./image02.png"></p> 
+<p align="center"><img src="./ReadME/image02.png"></p> 
  
  
 ## 참고링크
