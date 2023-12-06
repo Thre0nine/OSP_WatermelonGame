@@ -57,6 +57,7 @@ class Object(pymunk.Body):
                 other.vel = np.array([0,0])
 
 
+            # 현재 에러 발생하는 부분
             # while np.linalg.norm(self.position-other.position) < self.radius + other.radius: # collision
             #     self.position = self.position - np.sign(dpos) 
             #     self.check_boundary_x()
