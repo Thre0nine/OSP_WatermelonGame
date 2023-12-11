@@ -159,6 +159,7 @@ class Game():
         self.state['score'] = self.score
         self.state['drop_x'] = self.drop_x
     
+
     # 윈도우 설정
     def setting(self):
         self.font_arial = pygame.font.SysFont("arial", 20, True, False)
@@ -169,26 +170,37 @@ class Game():
         pygame.display.set_caption("Watermelon Game")
         # Create a clock object to control the frame rate
         self.clock = pygame.time.Clock()
+        
 
-    
-    def draw(self):
-        self.screen.fill(WHITE)
+    def draw_object(self):
         for obj in self.objects:
             pygame.draw.circle(self.screen, object_color(obj.radius), obj.position, obj.radius)
+            
+
+    def draw_text(self, start_text):
+        start_text = self.font_arial.render(start_text, True, BLACK)
+        self.screen.blit(start_text, (90, 30))
+    
+
+    def draw_base(self):
+        self.screen.fill(WHITE)
+        # 다음 게체
         pygame.draw.circle(self.screen, object_color(self.next_radius), (self.drop_x, DROP_HEIGHT), self.next_radius)
+        # 경계선
         pygame.draw.line(self.screen, BLACK, (0, self.SCREEN_HEIGHT), (self.SCREEN_WIDTH/2, self.SCREEN_HEIGHT), 20)
         pygame.draw.line(self.screen, BLACK, (0, self.SCREEN_HEIGHT), (0, 0), 20)
         pygame.draw.line(self.screen, BLACK, (self.SCREEN_WIDTH/2, self.SCREEN_HEIGHT), (self.SCREEN_WIDTH/2, 0), 20)
+        # 상한선
         pygame.draw.line(self.screen, RED, (10, LIMIT_HEIGHT), (self.SCREEN_WIDTH/2-10, LIMIT_HEIGHT), 4)
+        # 점수
         score_text = self.font_arial.render(f"score: {self.score}", True, BLACK)
-        self.screen.blit(score_text, (20, 20))
-        # Update the screen
+        self.screen.blit(score_text, (450, 30))
+    
+
+    def draw_update(self):
         pygame.display.update()
         self.clock.tick(self.FRAME_RATE)
-
-    def quit(self):
-        pygame.quit()
-        
+  
 
     def run(self, mode='VISUALIZE'):
         if mode == 'VISUALIZE':
@@ -202,10 +214,34 @@ class Game():
         
         if mode == 'VISUALIZE':
             action = [False, False, False]
-            action_list = []
+            
+            self.draw_base()
             
             while self.ending:
                 
+                self.running = False
+                
+                self.draw_text("press spacebar to start")
+                self.draw_update()
+                
+                for event in pygame.event.get():
+                    
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                        self.__init__(800, 600)
+                        
+                    if event.type == pygame.QUIT:
+                            self.running = False
+                            self.ending = False
+                            
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                        self.__init__(800, 600)
+                        
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                        self.running = False
+                        self.ending = False
+                
+                
+
                 while self.running:
                 
                     for event in pygame.event.get():
@@ -237,19 +273,11 @@ class Game():
                         
 
                     self.update(action)
-                    self.draw()
-              
-                    
-                for event in pygame.event.get():
-                    if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
-                        self.__init__(800, 600)
-                        
-                    if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                        self.running = False
-                        self.ending = False
-                
+                    self.draw_base()
+                    self.draw_object()
+                    self.draw_update()
             
-            self.quit()
+            pygame.quit()
 
 
 seed = np.random.randint(1000,9000)+1000
