@@ -188,47 +188,6 @@ class Game():
 
     def quit(self):
         pygame.quit()
-
-
-    def reset(self):
-        self.running = True
-        self.ending = True
-
-        self.objects = []
-        self.next_radius = np.random.randint(1,4)*self.OBJECT_SIZE
-
-        self.drop_x = self.SCREEN_WIDTH/2 // 2
-        
-        self.score = 0
-        self.object_timer = 0
-        self.limit_timer = 0
-
-        # 霸烙 傍埃 积己
-        self.space = pymunk.Space()
-        self.gravity = (0, 1000)
-        self.space.gravity = self.gravity
-        self.space.add_collision_handler(BALL_COLLISION, BALL_COLLISION).post_solve = post_solve_arbiter
-        self.space.add_collision_handler(BALL_COLLISION, GROUND_COLLISION).post_solve = post_solve_arbiter2
-
-        # 官蹿 积己
-        ground = pymunk.Segment(self.space.static_body, (0, self.SCREEN_HEIGHT), (self.SCREEN_WIDTH/2, self.SCREEN_HEIGHT), 10)
-        ground.friction = 1.0
-        ground.collision_type = GROUND_COLLISION
-        self.space.add(ground)
-
-        # 哭率 寒 积己
-        left_wall = pymunk.Segment(self.space.static_body, (0, self.SCREEN_HEIGHT), (0, 0), 10)
-        left_wall.friction = 1.0
-        left_wall.collision_type = GROUND_COLLISION
-        self.space.add(left_wall)
-
-        # 坷弗率 寒 积己
-        right_wall = pymunk.Segment(self.space.static_body, (self.SCREEN_WIDTH/2, 0), (self.SCREEN_WIDTH/2, self.SCREEN_HEIGHT), 10)
-        right_wall.friction = 1.0
-        right_wall.collision_type = GROUND_COLLISION
-        self.space.add(right_wall)
-
-        self.state = dict()
         
 
     def run(self, mode='VISUALIZE'):
@@ -244,44 +203,54 @@ class Game():
         if mode == 'VISUALIZE':
             action = [False, False, False]
             action_list = []
-            while self.running:
+            
+            while self.ending:
+                
+                while self.running:
+                
+                    for event in pygame.event.get():
+                    
+                        if event.type == pygame.QUIT:
+                            self.running = False
+                            self.ending = False
+
+                        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                            action[2] = True
+                        elif event.type == pygame.KEYUP and event.key == pygame.K_SPACE:
+                            action[2] = False
+                        if event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
+                            action[0] = True
+                        elif event.type == pygame.KEYUP and event.key == pygame.K_LEFT:
+                            action[0] = False
+                        if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
+                            action[1] = True
+                        elif event.type == pygame.KEYUP and event.key == pygame.K_RIGHT:
+                            action[1] = False
+
+
+                        if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                            self.__init__(800, 600)
+                        
+                        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                            self.running = False
+                            self.ending = False
+                        
+
+                    self.update(action)
+                    self.draw()
+              
+                    
                 for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                        self.__init__(800, 600)
+                        
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                         self.running = False
                         self.ending = False
-                    if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                        action[2] = True
-                    elif event.type == pygame.KEYUP and event.key == pygame.K_SPACE:
-                        action[2] = False
-                    if event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
-                        action[0] = True
-                    elif event.type == pygame.KEYUP and event.key == pygame.K_LEFT:
-                        action[0] = False
-                    if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
-                        action[1] = True
-                    elif event.type == pygame.KEYUP and event.key == pygame.K_RIGHT:
-                        action[1] = False
-
-                    if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
-                        self.reset()
-                        self.running = True
-                    
-                action_list.append("%i%i%i\n" % (action[0], action[1], action[2]))
-                self.update(action)
-                self.draw()
-
-            with open('data.txt', 'w') as fp:
-                fp.write("%i\n" % seed)
-                for action_text in action_list:
-                    fp.write(action_text)
-                print("Write Done")
-
-            while self.ending:
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        self.ending = False
+                
             
             self.quit()
+
 
 seed = np.random.randint(1000,9000)+1000
 np.random.seed(seed)
