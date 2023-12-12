@@ -67,7 +67,7 @@ class Game():
         self.ending = True
 
         self.objects = []
-        self.next_radius = np.random.randint(1,4)*self.OBJECT_SIZE
+        self.max_radius = np.random.randint(1,4)*self.OBJECT_SIZE
 
         self.drop_x = self.SCREEN_WIDTH/2 // 2
         
@@ -107,18 +107,21 @@ class Game():
     def update(self, action):
         if action[0]:
             self.drop_x = self.drop_x - 200 / self.FRAME_RATE
-            if self.drop_x < self.next_radius:
-                self.drop_x = self.next_radius
+            if self.drop_x < self.max_radius:
+                self.drop_x = self.max_radius
+                
         if action[1]:
             self.drop_x = self.drop_x + 200 / self.FRAME_RATE
-            if self.drop_x > self.SCREEN_WIDTH/2-self.next_radius:
-                self.drop_x = self.SCREEN_WIDTH/2-self.next_radius
+            if self.drop_x > self.SCREEN_WIDTH/2-self.max_radius:
+                self.drop_x = self.SCREEN_WIDTH/2-self.max_radius
+                
         if action[2] and self.object_timer == 0:
-            object, circle = add_object(self.next_radius, self.drop_x, DROP_HEIGHT)
+            object, circle = add_object(self.max_radius, self.drop_x, DROP_HEIGHT)
             self.space.add(object, circle)
             self.objects.append(object)
-            self.next_radius = np.random.randint(1,4)*self.OBJECT_SIZE
+            self.max_radius = np.random.randint(1,4)*self.OBJECT_SIZE
             self.object_timer = self.FRAME_RATE // 2
+            
         if self.object_timer > 0:
             self.object_timer = self.object_timer - 1
                 
@@ -144,18 +147,21 @@ class Game():
             self.space.remove(obj, obj.circle)
             self.objects.remove(obj)
             del obj
+            
         limit_violated = False
         for obj in self.objects:
             if obj.position.y - obj.radius < LIMIT_HEIGHT:
                 limit_violated = True
+                
         if limit_violated:
             self.limit_timer = self.limit_timer + 1
             if self.limit_timer > self.FRAME_RATE * 2:
                 self.running = False
         else:
             self.limit_timer = 0
+            
         self.space.step(1 / self.FRAME_RATE)
-        self.state['OBJECT'] = [{'x':obj.position[0], 'y':obj.position[1], 'r':obj.radius} for obj in self.objects] + [{'x':self.drop_x, 'y': DROP_HEIGHT, 'r':self.next_radius}]
+        self.state['OBJECT'] = [{'x':obj.position[0], 'y':obj.position[1], 'r':obj.radius} for obj in self.objects] + [{'x':self.drop_x, 'y': DROP_HEIGHT, 'r':self.max_radius}]
         self.state['score'] = self.score
         self.state['drop_x'] = self.drop_x
     
@@ -185,16 +191,30 @@ class Game():
     def draw_base(self):
         self.screen.fill(WHITE)
         # 다음 게체
-        pygame.draw.circle(self.screen, object_color(self.next_radius), (self.drop_x, DROP_HEIGHT), self.next_radius)
+        pygame.draw.circle(self.screen, object_color(self.max_radius), (self.drop_x, DROP_HEIGHT), self.max_radius)
         # 경계선
         pygame.draw.line(self.screen, BLACK, (0, self.SCREEN_HEIGHT), (self.SCREEN_WIDTH/2, self.SCREEN_HEIGHT), 20)
         pygame.draw.line(self.screen, BLACK, (0, self.SCREEN_HEIGHT), (0, 0), 20)
         pygame.draw.line(self.screen, BLACK, (self.SCREEN_WIDTH/2, self.SCREEN_HEIGHT), (self.SCREEN_WIDTH/2, 0), 20)
         # 상한선
         pygame.draw.line(self.screen, RED, (10, LIMIT_HEIGHT), (self.SCREEN_WIDTH/2-10, LIMIT_HEIGHT), 4)
+        # Next
+        pygame.draw.line(self.screen, BLACK, (450, 30), (450, 130), 10)
+        pygame.draw.line(self.screen, BLACK, (450, 130), (550, 130), 10)
+        pygame.draw.line(self.screen, BLACK, (550, 30), (550, 130), 10)
+        pygame.draw.line(self.screen, BLACK, (450, 30), (550, 30), 10)
+        next_text = self.font_arial.render(f"NEXT", True, BLACK)
+        self.screen.blit(next_text, (473, 135))
+        # Hold
+        pygame.draw.line(self.screen, BLACK, (450, 230), (450, 330), 10)
+        pygame.draw.line(self.screen, BLACK, (450, 330), (550, 330), 10)
+        pygame.draw.line(self.screen, BLACK, (550, 230), (550, 330), 10)
+        pygame.draw.line(self.screen, BLACK, (450, 230), (550, 230), 10)
+        next_text = self.font_arial.render(f"HOLD", True, BLACK)
+        self.screen.blit(next_text, (473, 335))
         # 점수
         score_text = self.font_arial.render(f"score: {self.score}", True, BLACK)
-        self.screen.blit(score_text, (450, 30))
+        self.screen.blit(score_text, (450, 430))
     
 
     def draw_update(self):
