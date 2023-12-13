@@ -103,10 +103,10 @@ class Game():
         self.space.add(right_wall)
 
         self.state = dict()
+        
 
-
-    # 게임을 진행하면서 실시간으로 업데이트 되는 내용들
-    def update(self, action):
+    # 키보드 이벤트 처리
+    def eventHandle(self, action):
         if action[0]:
             self.drop_x = self.drop_x - 200 / self.FRAME_RATE
             if self.drop_x < self.max_radius:
@@ -129,7 +129,9 @@ class Game():
             
         if self.object_timer > 0:
             self.object_timer = self.object_timer - 1
-                
+            
+    
+    def collisionHandle(self):
         # 같은 오브젝트가 충돌하면 기존 배열에서 오브젝트를 삭제
         # 한 단계 높은 레벨의 오브젝트를 배열에 추가
         delete_queue = []
@@ -145,14 +147,16 @@ class Game():
                         def calc_score(radius):
                             n = radius // self.OBJECT_SIZE
                             return n * (n + 1) // 2
-                        self.score = self.score + calc_score(object.radius)
-                        
+                        self.score = self.score + calc_score(object.radius)             
+
         # 게임 공간에서도 삭제
         for obj in delete_queue:
             self.space.remove(obj, obj.circle)
             self.objects.remove(obj)
             del obj
-            
+    
+
+    def limitHandle(self):
         limit_violated = False
         for obj in self.objects:
             if obj.position.y - obj.radius < LIMIT_HEIGHT:
@@ -165,10 +169,22 @@ class Game():
         else:
             self.limit_timer = 0
             
+    def statusHandle(self):
         self.space.step(1 / self.FRAME_RATE)
         self.state['OBJECT'] = [{'x':obj.position[0], 'y':obj.position[1], 'r':obj.radius} for obj in self.objects] + [{'x':self.drop_x, 'y': DROP_HEIGHT, 'r':self.max_radius}]
         self.state['score'] = self.score
         self.state['drop_x'] = self.drop_x
+
+
+    # 게임을 진행하면서 실시간으로 업데이트 되는 내용들
+    def update(self, action):
+        self.eventHandle(action)
+                
+        self.collisionHandle()
+            
+        self.limitHandle()
+            
+        self.statusHandle()
     
 
     # 윈도우 설정
