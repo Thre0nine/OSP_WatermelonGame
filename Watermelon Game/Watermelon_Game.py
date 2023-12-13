@@ -1,7 +1,5 @@
 #-*- coding: utf-8 -*-
 
-from opcode import haslocal
-from turtle import Screen
 import pymunk
 import pygame
 import sys
