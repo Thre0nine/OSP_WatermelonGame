@@ -65,9 +65,11 @@ class Game():
         # 실행 여부
         self.running = True
         self.ending = True
-
+        
         self.objects = []
         self.max_radius = np.random.randint(1,4)*self.OBJECT_SIZE
+        self.next_radius = np.random.randint(1,4)*self.OBJECT_SIZE
+        self.current_radius = np.random.randint(1,4)*self.OBJECT_SIZE
 
         self.drop_x = self.SCREEN_WIDTH/2 // 2
         
@@ -116,10 +118,13 @@ class Game():
                 self.drop_x = self.SCREEN_WIDTH/2-self.max_radius
                 
         if action[2] and self.object_timer == 0:
-            object, circle = add_object(self.max_radius, self.drop_x, DROP_HEIGHT)
+            
+            object, circle = add_object(self.current_radius, self.drop_x, DROP_HEIGHT)
             self.space.add(object, circle)
             self.objects.append(object)
+            self.current_radius = self.next_radius
             self.max_radius = np.random.randint(1,4)*self.OBJECT_SIZE
+            self.next_radius = self.max_radius
             self.object_timer = self.FRAME_RATE // 2
             
         if self.object_timer > 0:
@@ -179,6 +184,8 @@ class Game():
         
 
     def draw_object(self):
+        # 다음 개체
+        pygame.draw.circle(self.screen, object_color(self.current_radius), (self.drop_x, DROP_HEIGHT), self.current_radius)
         for obj in self.objects:
             pygame.draw.circle(self.screen, object_color(obj.radius), obj.position, obj.radius)
             
@@ -190,8 +197,6 @@ class Game():
 
     def draw_base(self):
         self.screen.fill(WHITE)
-        # 다음 게체
-        pygame.draw.circle(self.screen, object_color(self.max_radius), (self.drop_x, DROP_HEIGHT), self.max_radius)
         # 경계선
         pygame.draw.line(self.screen, BLACK, (0, self.SCREEN_HEIGHT), (self.SCREEN_WIDTH/2, self.SCREEN_HEIGHT), 20)
         pygame.draw.line(self.screen, BLACK, (0, self.SCREEN_HEIGHT), (0, 0), 20)
@@ -205,6 +210,7 @@ class Game():
         pygame.draw.line(self.screen, BLACK, (450, 30), (550, 30), 10)
         next_text = self.font_arial.render(f"NEXT", True, BLACK)
         self.screen.blit(next_text, (473, 135))
+        pygame.draw.circle(self.screen, object_color(self.next_radius), (500, 80), self.next_radius)
         # Hold
         pygame.draw.line(self.screen, BLACK, (450, 230), (450, 330), 10)
         pygame.draw.line(self.screen, BLACK, (450, 330), (550, 330), 10)
