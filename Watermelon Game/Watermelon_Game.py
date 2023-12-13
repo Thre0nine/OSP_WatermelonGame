@@ -1,6 +1,7 @@
 #-*- coding: utf-8 -*-
 
 from opcode import haslocal
+from turtle import Screen
 import pymunk
 import pygame
 import sys
@@ -21,13 +22,15 @@ LIMIT_COLLISION = 100
 LIMIT_HEIGHT = 160
 DROP_HEIGHT = 100
 EVENT_LIMIT = pygame.USEREVENT + 1
-
+            
+global impulse_level;
+impulse_level = 0.2
 
 # 충돌 처리
 # 물체와 물체 사이의 충돌 -> 서로 힘을 주고 받음
 def post_solve_arbiter(arbiter, space, data):
     for contact in arbiter.contact_point_set.points:
-        impulse = arbiter.total_impulse * 0.5
+        impulse = arbiter.total_impulse * impulse_level
         body1, body2 = arbiter.shapes
         body1.body.apply_impulse_at_world_point(impulse, contact.point_a)
         body2.body.apply_impulse_at_world_point(-impulse, contact.point_b)
@@ -35,7 +38,7 @@ def post_solve_arbiter(arbiter, space, data):
 # 물체와 벽 또는 바닥 사이의 충돌 -> 물체만 힘을 받음
 def post_solve_arbiter2(arbiter, space, data):
     for contact in arbiter.contact_point_set.points:
-        impulse = arbiter.total_impulse * 0.5
+        impulse = arbiter.total_impulse * impulse_level
         body1, body2 = arbiter.shapes
         body1.body.apply_impulse_at_world_point(impulse, contact.point_a)
 
@@ -105,7 +108,7 @@ class Game():
         self.space.add(right_wall)
 
         self.state = dict()
-        
+
 
     # 키보드 이벤트 처리
     def eventHandle(self, action):
@@ -226,6 +229,7 @@ class Game():
     
 
     def draw_base(self):
+        global impulse_level
         self.screen.fill(WHITE)
         # 경계선
         pygame.draw.line(self.screen, BLACK, (0, self.SCREEN_HEIGHT), (self.SCREEN_WIDTH/2, self.SCREEN_HEIGHT), 20)
@@ -233,6 +237,7 @@ class Game():
         pygame.draw.line(self.screen, BLACK, (self.SCREEN_WIDTH/2, self.SCREEN_HEIGHT), (self.SCREEN_WIDTH/2, 0), 20)
         # 상한선
         pygame.draw.line(self.screen, RED, (10, LIMIT_HEIGHT), (self.SCREEN_WIDTH/2-10, LIMIT_HEIGHT), 4)
+        
         # Next
         pygame.draw.line(self.screen, BLACK, (450, 30), (450, 130), 10)
         pygame.draw.line(self.screen, BLACK, (450, 130), (550, 130), 10)
@@ -241,6 +246,7 @@ class Game():
         next_text = self.font_arial.render(f"NEXT", True, BLACK)
         self.screen.blit(next_text, (473, 135))
         pygame.draw.circle(self.screen, object_color(self.next_radius), (500, 80), self.next_radius)
+       
         # Hold
         pygame.draw.line(self.screen, BLACK, (450, 230), (450, 330), 10)
         pygame.draw.line(self.screen, BLACK, (450, 330), (550, 330), 10)
@@ -250,9 +256,13 @@ class Game():
         self.screen.blit(next_text, (473, 335))
         if self.hold_radius is not None :
             pygame.draw.circle(self.screen, object_color(self.hold_radius), (500, 280), self.hold_radius)
+       
+        # 탄성계수
+        impulse_text = self.font_arial.render(f"impulse: {"{:.2f}".format(impulse_level)}", True, BLACK)
+        self.screen.blit(impulse_text, (450, 430))
         # 점수
         score_text = self.font_arial.render(f"score: {self.score}", True, BLACK)
-        self.screen.blit(score_text, (450, 430))
+        self.screen.blit(score_text, (450, 530))
     
 
     def draw_update(self):
@@ -261,6 +271,8 @@ class Game():
   
 
     def run(self, mode='VISUALIZE'):
+        global impulse_level
+        
         if mode == 'VISUALIZE':
             pygame.init()
             self.setting()
@@ -273,14 +285,9 @@ class Game():
         if mode == 'VISUALIZE':
             action = [False, False, False, False]
             
-            self.draw_base()
-            
             while self.ending:
                 
                 self.running = False
-                
-                self.draw_text("press spacebar to start")
-                self.draw_update()
                 
                 for event in pygame.event.get():
                     
@@ -297,13 +304,24 @@ class Game():
                     if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                         self.running = False
                         self.ending = False
-                
-                
+                    
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_d:
+                        if impulse_level < 1:
+                            impulse_level += 0.05
+                    
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_a:
+                        if impulse_level > 0 :
+                            impulse_level -= 0.05
+                    
+                self.draw_base()
+                self.draw_text("press spacebar to start")
+                self.draw_update()
+
 
                 while self.running:
                 
                     for event in pygame.event.get():
-                    
+                        
                         if event.type == pygame.QUIT:
                             self.running = False
                             self.ending = False
