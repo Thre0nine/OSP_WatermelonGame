@@ -26,7 +26,18 @@
 ## 사용 방법
  
  
-(설치 방법 내용)
+### 프로젝트 환경
+이 프로젝트는 Python 3.12 (64bit)로 작성되었습니다. 이는 작성 당시 가장 최신 버전의 Python으로 아직 visual studio 등에서 지원하지 않아 일부 기능이 올바르게 동작하지 않을 수 있습니다.
+
+```
+import pymunk
+import pygame
+import sys
+import numpy as np
+```
+위와 같은 라이브러리를 import하고 있습니다. 해당 라이브러리가 설치되어있지 않으면 동작하지 않습니다. 
+
+
 
 
 (플레이 방법 내용)  
