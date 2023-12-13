@@ -1,5 +1,6 @@
 #-*- coding: utf-8 -*-
 
+from opcode import haslocal
 import pymunk
 import pygame
 import sys
@@ -70,6 +71,7 @@ class Game():
         self.max_radius = np.random.randint(1,4)*self.OBJECT_SIZE
         self.next_radius = np.random.randint(1,4)*self.OBJECT_SIZE
         self.current_radius = np.random.randint(1,4)*self.OBJECT_SIZE
+        self.hold_radius = None;
 
         self.drop_x = self.SCREEN_WIDTH/2 // 2
         
@@ -126,7 +128,19 @@ class Game():
             self.max_radius = np.random.randint(1,4)*self.OBJECT_SIZE
             self.next_radius = self.max_radius
             self.object_timer = self.FRAME_RATE // 2
+        
+        if action[3] and self.object_timer == 0:
+            if self.hold_radius is None :
+                self.hold_radius = self.current_radius
+                self.current_radius = self.next_radius
+                self.next_radius = self.max_radius
+            else :
+                self.hold_radius, self.current_radius = self.current_radius, self.hold_radius
             
+            self.object_timer = self.FRAME_RATE // 2
+                
+              
+
         if self.object_timer > 0:
             self.object_timer = self.object_timer - 1
             
@@ -234,6 +248,8 @@ class Game():
         pygame.draw.line(self.screen, BLACK, (450, 230), (550, 230), 10)
         next_text = self.font_arial.render(f"HOLD", True, BLACK)
         self.screen.blit(next_text, (473, 335))
+        if self.hold_radius is not None :
+            pygame.draw.circle(self.screen, object_color(self.hold_radius), (500, 280), self.hold_radius)
         # Á¡¼ö
         score_text = self.font_arial.render(f"score: {self.score}", True, BLACK)
         self.screen.blit(score_text, (450, 430))
@@ -255,7 +271,7 @@ class Game():
             self.state['score'] = 0
         
         if mode == 'VISUALIZE':
-            action = [False, False, False]
+            action = [False, False, False, False]
             
             self.draw_base()
             
@@ -305,7 +321,11 @@ class Game():
                         elif event.type == pygame.KEYUP and event.key == pygame.K_RIGHT:
                             action[1] = False
 
-
+                        if event.type == pygame.KEYDOWN and event.key == pygame.K_h:
+                            action[3] = True
+                        elif event.type == pygame.KEYUP and event.key == pygame.K_h:
+                            action[3] = False 
+                            
                         if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
                             self.__init__(800, 600)
                         
