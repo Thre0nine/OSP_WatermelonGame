@@ -1,5 +1,7 @@
 #-*- coding: utf-8 -*-
 
+from opcode import haslocal
+from turtle import Screen
 import pymunk
 import pygame
 import sys
@@ -20,13 +22,15 @@ LIMIT_COLLISION = 100
 LIMIT_HEIGHT = 160
 DROP_HEIGHT = 100
 EVENT_LIMIT = pygame.USEREVENT + 1
-
+            
+global impulse_level;
+impulse_level = 0.2
 
 # 충돌 처리
 # 물체와 물체 사이의 충돌 -> 서로 힘을 주고 받음
 def post_solve_arbiter(arbiter, space, data):
     for contact in arbiter.contact_point_set.points:
-        impulse = arbiter.total_impulse * 0.5
+        impulse = arbiter.total_impulse * impulse_level
         body1, body2 = arbiter.shapes
         body1.body.apply_impulse_at_world_point(impulse, contact.point_a)
         body2.body.apply_impulse_at_world_point(-impulse, contact.point_b)
@@ -34,7 +38,7 @@ def post_solve_arbiter(arbiter, space, data):
 # 물체와 벽 또는 바닥 사이의 충돌 -> 물체만 힘을 받음
 def post_solve_arbiter2(arbiter, space, data):
     for contact in arbiter.contact_point_set.points:
-        impulse = arbiter.total_impulse * 0.5
+        impulse = arbiter.total_impulse * impulse_level
         body1, body2 = arbiter.shapes
         body1.body.apply_impulse_at_world_point(impulse, contact.point_a)
 
@@ -65,9 +69,12 @@ class Game():
         # 실행 여부
         self.running = True
         self.ending = True
-
+        
         self.objects = []
+        self.max_radius = np.random.randint(1,4)*self.OBJECT_SIZE
         self.next_radius = np.random.randint(1,4)*self.OBJECT_SIZE
+        self.current_radius = np.random.randint(1,4)*self.OBJECT_SIZE
+        self.hold_radius = None;
 
         self.drop_x = self.SCREEN_WIDTH/2 // 2
         
@@ -103,25 +110,45 @@ class Game():
         self.state = dict()
 
 
-    # 게임을 진행하면서 실시간으로 업데이트 되는 내용들
-    def update(self, action):
+    # 키보드 이벤트 처리
+    def eventHandle(self, action):
         if action[0]:
             self.drop_x = self.drop_x - 200 / self.FRAME_RATE
-            if self.drop_x < self.next_radius:
-                self.drop_x = self.next_radius
+            if self.drop_x < self.max_radius:
+                self.drop_x = self.max_radius
+                
         if action[1]:
             self.drop_x = self.drop_x + 200 / self.FRAME_RATE
-            if self.drop_x > self.SCREEN_WIDTH/2-self.next_radius:
-                self.drop_x = self.SCREEN_WIDTH/2-self.next_radius
+            if self.drop_x > self.SCREEN_WIDTH/2-self.max_radius:
+                self.drop_x = self.SCREEN_WIDTH/2-self.max_radius
+                
         if action[2] and self.object_timer == 0:
-            object, circle = add_object(self.next_radius, self.drop_x, DROP_HEIGHT)
+            
+            object, circle = add_object(self.current_radius, self.drop_x, DROP_HEIGHT)
             self.space.add(object, circle)
             self.objects.append(object)
-            self.next_radius = np.random.randint(1,4)*self.OBJECT_SIZE
+            self.current_radius = self.next_radius
+            self.max_radius = np.random.randint(1,4)*self.OBJECT_SIZE
+            self.next_radius = self.max_radius
             self.object_timer = self.FRAME_RATE // 2
+        
+        if action[3] and self.object_timer == 0:
+            if self.hold_radius is None :
+                self.hold_radius = self.current_radius
+                self.current_radius = self.next_radius
+                self.next_radius = self.max_radius
+            else :
+                self.hold_radius, self.current_radius = self.current_radius, self.hold_radius
+            
+            self.object_timer = self.FRAME_RATE // 2
+                
+              
+
         if self.object_timer > 0:
             self.object_timer = self.object_timer - 1
-                
+            
+    
+    def collisionHandle(self):
         # 같은 오브젝트가 충돌하면 기존 배열에서 오브젝트를 삭제
         # 한 단계 높은 레벨의 오브젝트를 배열에 추가
         delete_queue = []
@@ -137,28 +164,46 @@ class Game():
                         def calc_score(radius):
                             n = radius // self.OBJECT_SIZE
                             return n * (n + 1) // 2
-                        self.score = self.score + calc_score(object.radius)
-                        
+                        self.score = self.score + calc_score(object.radius)             
+
         # 게임 공간에서도 삭제
         for obj in delete_queue:
             self.space.remove(obj, obj.circle)
             self.objects.remove(obj)
             del obj
+    
+
+    def limitHandle(self):
         limit_violated = False
         for obj in self.objects:
             if obj.position.y - obj.radius < LIMIT_HEIGHT:
                 limit_violated = True
+                
         if limit_violated:
             self.limit_timer = self.limit_timer + 1
             if self.limit_timer > self.FRAME_RATE * 2:
                 self.running = False
         else:
             self.limit_timer = 0
+            
+    def statusHandle(self):
         self.space.step(1 / self.FRAME_RATE)
-        self.state['OBJECT'] = [{'x':obj.position[0], 'y':obj.position[1], 'r':obj.radius} for obj in self.objects] + [{'x':self.drop_x, 'y': DROP_HEIGHT, 'r':self.next_radius}]
+        self.state['OBJECT'] = [{'x':obj.position[0], 'y':obj.position[1], 'r':obj.radius} for obj in self.objects] + [{'x':self.drop_x, 'y': DROP_HEIGHT, 'r':self.max_radius}]
         self.state['score'] = self.score
         self.state['drop_x'] = self.drop_x
+
+
+    # 게임을 진행하면서 실시간으로 업데이트 되는 내용들
+    def update(self, action):
+        self.eventHandle(action)
+                
+        self.collisionHandle()
+            
+        self.limitHandle()
+            
+        self.statusHandle()
     
+
     # 윈도우 설정
     def setting(self):
         self.font_arial = pygame.font.SysFont("arial", 20, True, False)
@@ -169,69 +214,65 @@ class Game():
         pygame.display.set_caption("Watermelon Game")
         # Create a clock object to control the frame rate
         self.clock = pygame.time.Clock()
+        
 
-    
-    def draw(self):
-        self.screen.fill(WHITE)
+    def draw_object(self):
+        # 다음 개체
+        pygame.draw.circle(self.screen, object_color(self.current_radius), (self.drop_x, DROP_HEIGHT), self.current_radius)
         for obj in self.objects:
             pygame.draw.circle(self.screen, object_color(obj.radius), obj.position, obj.radius)
-        pygame.draw.circle(self.screen, object_color(self.next_radius), (self.drop_x, DROP_HEIGHT), self.next_radius)
+            
+
+    def draw_text(self, start_text):
+        start_text = self.font_arial.render(start_text, True, BLACK)
+        self.screen.blit(start_text, (90, 30))
+    
+
+    def draw_base(self):
+
+        self.screen.fill(WHITE)
+        # 경계선
         pygame.draw.line(self.screen, BLACK, (0, self.SCREEN_HEIGHT), (self.SCREEN_WIDTH/2, self.SCREEN_HEIGHT), 20)
         pygame.draw.line(self.screen, BLACK, (0, self.SCREEN_HEIGHT), (0, 0), 20)
         pygame.draw.line(self.screen, BLACK, (self.SCREEN_WIDTH/2, self.SCREEN_HEIGHT), (self.SCREEN_WIDTH/2, 0), 20)
+        # 상한선
         pygame.draw.line(self.screen, RED, (10, LIMIT_HEIGHT), (self.SCREEN_WIDTH/2-10, LIMIT_HEIGHT), 4)
+        
+        # Next
+        pygame.draw.line(self.screen, BLACK, (450, 30), (450, 130), 10)
+        pygame.draw.line(self.screen, BLACK, (450, 130), (550, 130), 10)
+        pygame.draw.line(self.screen, BLACK, (550, 30), (550, 130), 10)
+        pygame.draw.line(self.screen, BLACK, (450, 30), (550, 30), 10)
+        next_text = self.font_arial.render(f"NEXT", True, BLACK)
+        self.screen.blit(next_text, (473, 135))
+        pygame.draw.circle(self.screen, object_color(self.next_radius), (500, 80), self.next_radius)
+       
+        # Hold
+        pygame.draw.line(self.screen, BLACK, (450, 230), (450, 330), 10)
+        pygame.draw.line(self.screen, BLACK, (450, 330), (550, 330), 10)
+        pygame.draw.line(self.screen, BLACK, (550, 230), (550, 330), 10)
+        pygame.draw.line(self.screen, BLACK, (450, 230), (550, 230), 10)
+        next_text = self.font_arial.render(f"HOLD", True, BLACK)
+        self.screen.blit(next_text, (473, 335))
+        if self.hold_radius is not None :
+            pygame.draw.circle(self.screen, object_color(self.hold_radius), (500, 280), self.hold_radius)
+       
+        # 탄성계수
+        impulse_text = self.font_arial.render(f"impulse: {impulse_level}", True, BLACK)
+        self.screen.blit(impulse_text, (450, 430))
+        # 점수
         score_text = self.font_arial.render(f"score: {self.score}", True, BLACK)
-        self.screen.blit(score_text, (20, 20))
-        # Update the screen
+        self.screen.blit(score_text, (450, 530))
+    
+
+    def draw_update(self):
         pygame.display.update()
         self.clock.tick(self.FRAME_RATE)
-
-    def quit(self):
-        pygame.quit()
-
-
-    def reset(self):
-        self.running = True
-        self.ending = True
-
-        self.objects = []
-        self.next_radius = np.random.randint(1,4)*self.OBJECT_SIZE
-
-        self.drop_x = self.SCREEN_WIDTH/2 // 2
-        
-        self.score = 0
-        self.object_timer = 0
-        self.limit_timer = 0
-
-        # 게임 공간 생성
-        self.space = pymunk.Space()
-        self.gravity = (0, 1000)
-        self.space.gravity = self.gravity
-        self.space.add_collision_handler(BALL_COLLISION, BALL_COLLISION).post_solve = post_solve_arbiter
-        self.space.add_collision_handler(BALL_COLLISION, GROUND_COLLISION).post_solve = post_solve_arbiter2
-
-        # 바닥 생성
-        ground = pymunk.Segment(self.space.static_body, (0, self.SCREEN_HEIGHT), (self.SCREEN_WIDTH/2, self.SCREEN_HEIGHT), 10)
-        ground.friction = 1.0
-        ground.collision_type = GROUND_COLLISION
-        self.space.add(ground)
-
-        # 왼쪽 벽 생성
-        left_wall = pymunk.Segment(self.space.static_body, (0, self.SCREEN_HEIGHT), (0, 0), 10)
-        left_wall.friction = 1.0
-        left_wall.collision_type = GROUND_COLLISION
-        self.space.add(left_wall)
-
-        # 오른쪽 벽 생성
-        right_wall = pymunk.Segment(self.space.static_body, (self.SCREEN_WIDTH/2, 0), (self.SCREEN_WIDTH/2, self.SCREEN_HEIGHT), 10)
-        right_wall.friction = 1.0
-        right_wall.collision_type = GROUND_COLLISION
-        self.space.add(right_wall)
-
-        self.state = dict()
-        
+  
 
     def run(self, mode='VISUALIZE'):
+        global impulse_level
+        
         if mode == 'VISUALIZE':
             pygame.init()
             self.setting()
@@ -242,46 +283,84 @@ class Game():
             self.state['score'] = 0
         
         if mode == 'VISUALIZE':
-            action = [False, False, False]
-            action_list = []
-            while self.running:
+            action = [False, False, False, False]
+            
+            self.draw_base()
+            
+            while self.ending:
+                
+                self.running = False
+                
+                self.draw_text("press spacebar to start")
+                self.draw_update()
+                
                 for event in pygame.event.get():
+                    
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                        self.__init__(800, 600)
+                        
                     if event.type == pygame.QUIT:
+                            self.running = False
+                            self.ending = False
+                            
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                        self.__init__(800, 600)
+                        
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                         self.running = False
                         self.ending = False
-                    if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                        action[2] = True
-                    elif event.type == pygame.KEYUP and event.key == pygame.K_SPACE:
-                        action[2] = False
-                    if event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
-                        action[0] = True
-                    elif event.type == pygame.KEYUP and event.key == pygame.K_LEFT:
-                        action[0] = False
-                    if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
-                        action[1] = True
-                    elif event.type == pygame.KEYUP and event.key == pygame.K_RIGHT:
-                        action[1] = False
-
-                    if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
-                        self.reset()
-                        self.running = True
                     
-                action_list.append("%i%i%i\n" % (action[0], action[1], action[2]))
-                self.update(action)
-                self.draw()
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_d:
+                        if impulse_level < 1:
+                            impulse_level += 0.2
+                    
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_a:
+                        if impulse_level > 0 :
+                            impulse_level -= 0.2
+                    
+                self.draw_update()
 
-            with open('data.txt', 'w') as fp:
-                fp.write("%i\n" % seed)
-                for action_text in action_list:
-                    fp.write(action_text)
-                print("Write Done")
+                while self.running:
+                
+                    for event in pygame.event.get():
+                        
+                        if event.type == pygame.QUIT:
+                            self.running = False
+                            self.ending = False
 
-            while self.ending:
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        self.ending = False
+                        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                            action[2] = True
+                        elif event.type == pygame.KEYUP and event.key == pygame.K_SPACE:
+                            action[2] = False
+                        if event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
+                            action[0] = True
+                        elif event.type == pygame.KEYUP and event.key == pygame.K_LEFT:
+                            action[0] = False
+                        if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
+                            action[1] = True
+                        elif event.type == pygame.KEYUP and event.key == pygame.K_RIGHT:
+                            action[1] = False
+
+                        if event.type == pygame.KEYDOWN and event.key == pygame.K_h:
+                            action[3] = True
+                        elif event.type == pygame.KEYUP and event.key == pygame.K_h:
+                            action[3] = False 
+                            
+                        if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                            self.__init__(800, 600)
+                        
+                        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                            self.running = False
+                            self.ending = False
+                        
+
+                    self.update(action)
+                    self.draw_base()
+                    self.draw_object()
+                    self.draw_update()
             
-            self.quit()
+            pygame.quit()
+
 
 seed = np.random.randint(1000,9000)+1000
 np.random.seed(seed)
