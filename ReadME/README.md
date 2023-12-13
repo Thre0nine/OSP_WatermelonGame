@@ -21,7 +21,9 @@
 ### 프로젝트 목적 및 진행방향
 이 프로젝트는 중앙대학교 예술공학대학의 오픈소스프로그래밍 수업 중, GitHub를 사용하여 프로젝트를 진행하는 방법을 경험하고, 팀원과 협력하여 개발하는 것을 주된 목적으로 한다. GitHub의 다양한 기능을 이용해서 버전을 관리하고 각자의 로컬 환경에서 동시에 작업할 수 있다는 점을 이용한다.
 
-이 프로젝트에서 우리는 앞서 말한 "수박게임"을 구현하고자 한다. 기존 JavaScript의 코드를 Python으로 완성도 있게 옮겨오는 것을 목표로 하고, 이를 기반으로 추가 기능을 구현하는 것으로 계획했다. 수박게임은 랜덤하게 내려오는 객체를 전략적으로 배치하여 제한 높이를 넘기지 않으면서 높은 점수를 기록해야하는 게임이다. 때문에 테트리스와 유사한 부분이 많다. 테트리스는 오래된 역사의 게임인 만큼 그 바리에이션의 폭이 넓다. 그 넓은 바리에이션의 일부를 구현하여 수박게임을 더욱 풍성하게 만들 수 있을 것으로 생각된다.  
+이 프로젝트에서 우리는 앞서 말한 "수박게임"을 구현하고자 한다. 기존 JavaScript의 코드를 Python으로 완성도 있게 옮겨오는 것을 목표로 하고, 이를 기반으로 추가 기능을 구현하는 것으로 계획했다. 수박게임은 랜덤하게 내려오는 객체를 전략적으로 배치하여 제한 높이를 넘기지 않으면서 높은 점수를 기록해야하는 게임이다. 때문에 테트리스와 유사한 부분이 많다. 테트리스는 오래된 역사의 게임인 만큼 그 바리에이션의 폭이 넓다. 그 넓은 바리에이션의 일부를 구현하여 수박게임을 더욱 풍성하게 만들 수 있을 것으로 생각된다.
+
+그러나 JavaScript와 Python의 차이 때문에 공개되어있는 소스코드를 참고한다고 하더라도 이를 완벽하게 구현하는 것은 어려운 일이었다. 기한 내에 프로젝트를 마무리하기 위해서, JuwonHwang의 WatermelonGame을 참고하였다. Python으로 작성된 수박게임의 카피버전이다. 이 코드를 이용해서 기한 내에 프로젝트를 일정 수준에 도달하도록 할 수 있었다. 타인이 공개한 코드를 적절히 이용할 수 있다는 것도 오픈 소스의 큰 장점이다. 타인의 코드를 이용하면서 시간이 크게 단축되었다.
 
 <br/>
 
@@ -48,20 +50,21 @@ import numpy as np
 
 #### 기본 조작
 
-좌우 방향키와 스페이스바를 이용해서 플레이할 수 있습니다. 좌우 방향키를 이용해서 오브젝트를 떨어뜨릴 위치를 조정할 수 있고, 스페이스바를 눌러서 해당 위치에서 떨어뜨릴 수 있습니다.
+**좌우 방향키**와 **스페이스바**를 이용해서 플레이할 수 있습니다. 좌우 방향키를 이용해서 오브젝트를 떨어뜨릴 위치를 조정할 수 있고, 스페이스바를 눌러서 해당 위치에서 떨어뜨릴 수 있습니다.
 
 #### 다음 오브젝트
 화면의 오른쪽 공간은 추가적인 정보를 제공합니다. 현재 오브젝트 다음에 올 오브젝트를 보여줍니다. 이 정보를 통해서 보다 전략적으로 오브젝트를 배치할 수 있습니다.
 
 #### 오브젝트 홀드
-키보드 H키를 눌러서 홀드(hold)기능을 사용할 수 있습니다. 홀드 기능을 처음 사용하면, 현재 떨어뜨리기 위해 대기중인 오브젝트를 저장해둘 수 있습니다. 홀드 기능을 다시 사용하면, 대기 중인 오브젝트와 저장한 오브젝트를 서로 교환할 수 있습니다. 이 기능을 이용해서 보다 전략적으로 오브젝트를 배치할 수 있습니다.
+키보드 **H키**를 눌러서 홀드(hold)기능을 사용할 수 있습니다. 홀드 기능을 처음 사용하면, 현재 떨어뜨리기 위해 대기중인 오브젝트를 저장해둘 수 있습니다. 홀드 기능을 다시 사용하면, 대기 중인 오브젝트와 저장한 오브젝트를 서로 교환할 수 있습니다. 이 기능을 이용해서 보다 전략적으로 오브젝트를 배치할 수 있습니다.
 
 #### 충격량 조절
-게임이 시작되기 전, A키와 D키를 이용해서 오브젝트의 충격량(impulse_level)을 조절할 수 있습니다. 오브젝트를 떨어뜨리기 시작하면 해당 게임 동안은 오브젝트의 충격량을 조절할 수 없습니다. 
+게임이 시작되기 전, **A키**와 **D키**를 이용해서 오브젝트의 충격량(impulse_level)을 조절할 수 있습니다. 오브젝트를 떨어뜨리기 시작하면 해당 게임 동안은 오브젝트의 충격량을 조절할 수 없습니다. 
 
 #### 초기화
-키보드 R키를 눌러서 현재 진행상황을 초기화 할 수 있습니다.
+키보드 **R키**를 눌러서 현재 진행상황을 초기화 할 수 있습니다.
 
+<br/>
 
 ----
 ----
@@ -71,18 +74,96 @@ import numpy as np
  
 ### 구현된 기능
 
+#### 기존 코드에서 구현된 기능
+```
+def post_solve_arbiter(arbiter, space, data):
+    for contact in arbiter.contact_point_set.points:
+        impulse = arbiter.total_impulse * impulse_level
+        body1, body2 = arbiter.shapes
+        body1.body.apply_impulse_at_world_point(impulse, contact.point_a)
+        body2.body.apply_impulse_at_world_point(-impulse, contact.point_b)
+```
+```body1```과 ```body2```가 충돌한다고 했을때, 서로 주고 받는 힘에 대한 함수이다. ```arbiter.total_impulse```로 완전탄성충돌에서의 충격량을 계산하고, 여기에 0에서 1 사이의 값을 갖는 ```impulse_level```을 곱해서 물체의 탄성을 조절한다. 이 때 ```body1```과 ```body2```가 충돌하면서 그 충격은 반대방향이 된다. 함수 ```post_solve_arbiter2```를 보면 게임 공간에서 벽의 경우 충돌해도 움직이지 않기 때문에 물체만 힘을 받고 벽은 힘을 받지 않는다.
 
-(구현된 기능 내용)
- 
- 
+<br/>
+
+```
+def add_object(radius, x, y):
+    object = Object(radius, x, y)
+    circle = pymunk.Circle(object, object.radius)
+    circle.elasticity = 0.2
+    object.circle = circle
+    return object, circle
+```
+물리엔진이 적용되는 오브젝트를 생성하는 함수이다. 
+
+<br/>
+
+#### 주요 변경 사항
+기존 코드의 형태는 대부분 유지하였으나, 자주 사용되거나 한 함수의 크기가 너무 커질 경우 부분적으로 함수를 새롭게 선언하여 모듈화하였다.
+
+```
+def update(self, action):
+    self.eventHandle(action)
+            
+    self.collisionHandle()
+        
+    self.limitHandle()
+        
+    self.statusHandle()
+```
+모듈화를 통해서 코드의 가독성을 높이고 유지보수가 수월해졌다.
+
+<br/>
+
+```
+def draw_base(self):
+    global impulse_level
+    self.screen.fill(WHITE)
+    # 경계선
+    pygame.draw.line(self.screen, BLACK, (0, self.SCREEN_HEIGHT), (self.SCREEN_WIDTH/2, self.SCREEN_HEIGHT), 20)
+    pygame.draw.line(self.screen, BLACK, (0, self.SCREEN_HEIGHT), (0, 0), 20)
+    pygame.draw.line(self.screen, BLACK, (self.SCREEN_WIDTH/2, self.SCREEN_HEIGHT), (self.SCREEN_WIDTH/2, 0), 20)
+    # 상한선
+    pygame.draw.line(self.screen, RED, (10, LIMIT_HEIGHT), (self.SCREEN_WIDTH/2-10, LIMIT_HEIGHT), 4)
+    
+    # Next
+    pygame.draw.line(self.screen, BLACK, (450, 30), (450, 130), 10)
+    pygame.draw.line(self.screen, BLACK, (450, 130), (550, 130), 10)
+    pygame.draw.line(self.screen, BLACK, (550, 30), (550, 130), 10)
+    pygame.draw.line(self.screen, BLACK, (450, 30), (550, 30), 10)
+    next_text = self.font_arial.render(f"NEXT", True, BLACK)
+    self.screen.blit(next_text, (473, 135))
+    pygame.draw.circle(self.screen, object_color(self.next_radius), (500, 80), self.next_radius)
+   
+    # Hold
+    pygame.draw.line(self.screen, BLACK, (450, 230), (450, 330), 10)
+    pygame.draw.line(self.screen, BLACK, (450, 330), (550, 330), 10)
+    pygame.draw.line(self.screen, BLACK, (550, 230), (550, 330), 10)
+    pygame.draw.line(self.screen, BLACK, (450, 230), (550, 230), 10)
+    next_text = self.font_arial.render(f"HOLD", True, BLACK)
+    self.screen.blit(next_text, (473, 335))
+    if self.hold_radius is not None :
+        pygame.draw.circle(self.screen, object_color(self.hold_radius), (500, 280), self.hold_radius)
+   
+    # 탄성계수
+    impulse_text = self.font_arial.render(f"impulse: {"{:.2f}".format(impulse_level)}", True, BLACK)
+    self.screen.blit(impulse_text, (450, 430))
+    # 점수
+    score_text = self.font_arial.render(f"score: {self.score}", True, BLACK)
+    self.screen.blit(score_text, (450, 530))
+```
+게임의 기본 틀을 그린다. 
+
+
 ### 구현할 기능
  
  
 현재까지 논의된 추가 기능은 다음과 같다.
 - 게임을 중간에 멈출 수 있는 pause 기능
-- 다음에 떨어질 객체를 보여주는 기능
-- 이번에 떨어질 객체를 hold해 두었다가 나중에 사용하는 기능
-- 객체가 튕기는 반발 값을 플레이어가 설정하는 난이도 조절 기능
+- ~~다음에 떨어질 객체를 보여주는 기능~~
+- ~~이번에 떨어질 객체를 hold해 두었다가 나중에 사용하는 기능~~
+- ~~객체가 튕기는 반발 값을 플레이어가 설정하는 난이도 조절 기능~~
  
 <p align="center"><img src="./image02.png"></p> 
  
@@ -93,3 +174,4 @@ import numpy as np
 - [Wikipedia - Suika Game](https://en.wikipedia.org/wiki/Suika_Game "위키피디아 - 수박게임")
 - [liyupi - daxigua (원본 오픈소스)](https://github.com/liyupi/daxigua "github - liyupi - daxigua")
 - [seigot - tetris](https://github.com/seigot/tetris "github - seigot - tetris")
+- [JuwonHwang - WatermelonGame (참고한 코드)](https://github.com/JuwonHwang/WatermelonGame "github - JuwonHwang - WatermelonGame")
